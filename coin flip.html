@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Realistic 3D Coin Flip</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            text-align: center;
+        }
+        
+        .header {
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        h1 {
+            margin: 0;
+            font-size: 2.5rem;
+            text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+        
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.8;
+            margin-top: 5px;
+        }
+        
+        .container {
+            display: flex;
+            flex: 1;
+            padding: 20px;
+        }
+        
+        #coinCanvas {
+            flex: 1;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+        }
+        
+        .controls {
+            width: 300px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            margin-left: 20px;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .control-group {
+            margin-bottom: 25px;
+        }
+        
+        .control-group h3 {
+            margin-top: 0;
+            margin-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            padding-bottom: 8px;
+        }
+        
+        .slider-container {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            text-align: left;
+            font-size: 0.9rem;
+        }
+        
+        input[type="range"] {
+            width: 100%;
+            margin-bottom: 5px;
+        }
+        
+        .value-display {
+            text-align: right;
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        
+        button {
+            background: linear-gradient(to right, #ff7e5f, #feb47b);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            font-size: 1.1rem;
+            border-radius: 50px;
+            cursor: pointer;
+            margin: 10px 0;
+            transition: all 0.3s;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        button:active {
+            transform: translateY(1px);
+        }
+        
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 10px;
+            min-height: 80px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .result-text {
+            font-size: 1.8rem;
+            font-weight: bold;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            margin: 10px 0;
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+            margin-top: 15px;
+            font-size: 0.9rem;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #ff7e5f;
+        }
+        
+        .flipping {
+            animation: pulse 1s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 0.7; }
+            50% { opacity: 1; }
+            100% { opacity: 0.7; }
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+            
+            .controls {
+                width: auto;
+                margin: 20px 0 0 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Realistic 3D Coin Flip</h1>
+        <div class="subtitle">Physics-based simulation using Three.js and Cannon.js</div>
+    </div>
+    
+    <div class="container">
+        <canvas id="coinCanvas"></canvas>
+        
+        <div class="controls">
+            <div class="control-group">
+                <h3>Coin Physics</h3>
+                
+                <div class="slider-container">
+                    <label for="flipForce">Flip Force</label>
+                    <input type="range" id="flipForce" min="5" max="30" value="7">
+                    <div class="value-display"><span id="flipForceValue">7</span> N</div>
+                </div>
+                
+                <div class="slider-container">
+                    <label for="spinForce">Spin Force</label>
+                    <input type="range" id="spinForce" min="1" max="30" value="15">
+                    <div class="value-display"><span id="spinForceValue">15</span> N</div>
+                </div>
+                
+                <div class="slider-container">
+                    <label for="gravity">Gravity</label>
+                    <input type="range" id="gravity" min="1" max="20" value="9">
+                    <div class="value-display"><span id="gravityValue">9</span> m/s²</div>
+                </div>
+            </div>
+            
+            <button id="flipButton">Flip Coin!</button>
+            <button id="resetButton">Reset Simulation</button>
+            
+            <div class="result">
+                <div>Result:</div>
+                <div class="result-text" id="resultText">Ready to flip</div>
+                
+                <div class="stats">
+                    <div class="stat-item">
+                        <div>Flips:</div>
+                        <div class="stat-value" id="flipCount">0</div>
+                    </div>
+                    <div class="stat-item">
+                        <div>Heads:</div>
+                        <div class="stat-value" id="headsCount">0</div>
+                    </div>
+                    <div class="stat-item">
+                        <div>Tails:</div>
+                        <div class="stat-value" id="tailsCount">0</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Include Three.js and Cannon.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cannon.js/0.6.2/cannon.min.js"></script>
+    
+    <script>
+        // Initialize variables
+        let scene, camera, renderer, world, coinBody, coinMesh, groundBody, groundMesh;
+        let flipCount = 0, headsCount = 0, tailsCount = 0;
+        let clock = new THREE.Clock();
+        let flipInProgress = false;
+        
+        // DOM Elements
+        const flipButton = document.getElementById('flipButton');
+        const resetButton = document.getElementById('resetButton');
+        const resultText = document.getElementById('resultText');
+        const flipCountEl = document.getElementById('flipCount');
+        const headsCountEl = document.getElementById('headsCount');
+        const tailsCountEl = document.getElementById('tailsCount');
+        const flipForceSlider = document.getElementById('flipForce');
+        const spinForceSlider = document.getElementById('spinForce');
+        const gravitySlider = document.getElementById('gravity');
+        const flipForceValue = document.getElementById('flipForceValue');
+        const spinForceValue = document.getElementById('spinForceValue');
+        const gravityValue = document.getElementById('gravityValue');
+        
+        // Initialize the scene
+        function init() {
+            // Create scene
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x0c0e2b);
+            // scene.fog = new THREE.Fog(0x0c0e2b, 10, 100);
+            
+            // Create camera
+            camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.set(0, 10, 20);
+            camera.lookAt(0, 0, 0);
+            
+            // Create renderer
+            const canvas = document.getElementById('coinCanvas');
+            renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+            renderer.setSize(canvas.clientWidth, canvas.clientHeight);
+            renderer.shadowMap.enabled = true;
+            
+            // Create physics world
+            world = new CANNON.World();
+            world.gravity.set(0, -parseInt(gravitySlider.value), 0);
+            world.broadphase = new CANNON.NaiveBroadphase();
+            world.solver.iterations = 10;
+            
+            // Add lighting
+            const ambientLight = new THREE.AmbientLight(0x404040, 2);
+            scene.add(ambientLight);
+            
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+
+            directionalLight.position.set(50, 50, 70);
+            scene.add(directionalLight);
+            
+            const backLight = new THREE.DirectionalLight(0xffffff, 0.5);
+            backLight.position.set(-5, 5, -5);
+            scene.add(backLight);
+            
+            // Create ground
+            createGround();
+            
+            // Create coin
+            createCoin();
+            
+            // Add event listeners
+            setupEventListeners();
+            
+            // Start animation
+            animate();
+        }
+        
+        // Create the ground
+        function createGround() {
+            // Physics ground
+            const groundShape = new CANNON.Plane();
+            groundBody = new CANNON.Body({ mass: 0 });
+            groundBody.addShape(groundShape);
+            groundBody.quaternion.setFromAxisAngle(new CANNON.Vec3(1, 0, 0), -Math.PI/2);
+            world.addBody(groundBody);
+            
+            // Visual ground
+            const groundGeometry = new THREE.PlaneGeometry(2000, 2000);
+            const groundMaterial = new THREE.MeshStandardMaterial({ 
+                color: 0x2a4e6c,
+                roughness: 0.8,
+                metalness: 0.2
+            });
+            groundMesh = new THREE.Mesh(groundGeometry, groundMaterial);
+            groundMesh.rotation.x = -Math.PI / 2;
+            groundMesh.receiveShadow = true;
+            scene.add(groundMesh);
+            
+            // Add grid helper
+            const gridHelper = new THREE.GridHelper(2000, 500, 0xffffff, 0xffffff);
+            gridHelper.material.opacity = 0.1;
+            gridHelper.material.transparent = true;
+            gridHelper.position.set(0, 0.01, 0);
+            scene.add(gridHelper);
+        }
+        
+        // Create the coin
+        function createCoin() {
+            const radius = 1;
+            const thickness = 0.15;
+            const edgeSegments = 32;
+            
+            // Physics coin
+            const coinShape = new CANNON.Cylinder(radius, radius, thickness, edgeSegments);
+            coinBody = new CANNON.Body({ mass: 2 });
+            // coinBody.quaternion.setFromAxisAngle(new CANNON.Vec3(0, 0, 1), Math.PI / 1);
+            coinBody.addShape(coinShape); 
+            coinBody.position.set(0, 3, 0);
+            coinBody.linearDamping = 0.1;
+            coinBody.angularDamping = 0.1;
+
+            world.addBody(coinBody);
+            
+            // Material for heads and tails
+            const headMaterial = new THREE.MeshStandardMaterial({ 
+                color: 0xd4af37,
+                roughness: 0.3,
+                metalness: 0.8,
+                emissive: 0x000000,
+                emissiveIntensity: 0
+            });
+            
+            const tailMaterial = new THREE.MeshStandardMaterial({ 
+                color: 0xc0c0c0,
+                roughness: 0.4,
+                metalness: 0.9,
+                emissive: 0x000000,
+                emissiveIntensity: 0
+            });
+            
+            const edgeMaterial = new THREE.MeshStandardMaterial({ 
+                color: 0x8b7500,
+                roughness: 0.4,
+                metalness: 0.5
+            });
+            
+            // Visual coin
+            const coinGeometry = new THREE.CylinderGeometry(radius, radius, thickness, edgeSegments, 1, false);
+            coinGeometry.rotateX(Math.PI/2); // Rotate 90 degrees around X-axis
+
+            // Create separate materials for each face
+            const materials = [
+                new THREE.MeshStandardMaterial({ color: 0xcccccc }), // edge
+                new THREE.MeshStandardMaterial({ color: 0x801313 }), // heads (top)
+                new THREE.MeshStandardMaterial({ color: 0x0073f7 })  // tails (bottom)
+            ];
+            
+            coinMesh = new THREE.Mesh(coinGeometry, materials);
+            coinMesh.castShadow = true;
+            coinMesh.receiveShadow = true;
+
+            scene.add(coinMesh);
+        }
+        
+        // Flip the coin
+        function flipCoin() {
+            if (flipInProgress) return;
+            
+            flipInProgress = true;
+            flipCount++;
+            flipCountEl.textContent = flipCount;
+            resultText.textContent = "Flipping...";
+            resultText.classList.add("flipping");
+            
+            // Reset coin position and rotation
+            coinBody.position.set(0, 5, 0);
+            coinBody.velocity.set(0, 0, 0);
+            coinBody.angularVelocity.set(0, 0, 0);
+            coinBody.quaternion.set(0, 0, 0, 1);
+            
+            // Apply forces based on slider values
+            const flipForce = parseInt(flipForceSlider.value);
+            const spinForce = parseInt(spinForceSlider.value);
+            
+            // Apply upward force and random spin
+            coinBody.applyImpulse(new CANNON.Vec3(0, flipForce, 0), new CANNON.Vec3(0, 0, 0));
+            
+            // Apply torque for spinning
+            const torqueX = (Math.random() - 0.5) * spinForce;
+            const torqueY = Math.random() * spinForce;
+            const torqueZ = (Math.random() - 0.5) * spinForce;
+            coinBody.applyImpulse(new CANNON.Vec3(torqueX, torqueY, torqueZ), new CANNON.Vec3(0, 0.1, 0));
+            
+            // Set timeout to check result after physics simulation
+            setTimeout(() => {
+                const checkInterval = setInterval(() => {
+                    // Check if coin has settled
+                    const isStationary = coinBody.velocity.almostZero(0.1) && 
+                                         coinBody.angularVelocity.almostZero(0.1);
+                    
+                    if (isStationary) {
+                        clearInterval(checkInterval);
+                        flipInProgress = false;
+                        resultText.classList.remove("flipping");
+                        
+                        // Determine result based on coin's orientation
+                        const up = new CANNON.Vec3(0, 1, 0);
+                        const coinNormal = new CANNON.Vec3(0, 0, 1);
+                        coinBody.vectorToWorldFrame(coinNormal, coinNormal);
+                        
+                        // Dot product to see if heads (top) is facing up
+                        const dot = coinNormal.dot(up);
+                        console.log(dot)
+                        
+                        if (dot > 0.7) {
+                            resultText.textContent = "HEADS!";
+                            headsCount++;
+                            headsCountEl.textContent = headsCount;
+                            coinMesh.material[1].emissive.set(0xffff00);
+                            coinMesh.material[1].emissiveIntensity = 0.3;
+                        } else if (dot < -0.7) {
+                            resultText.textContent = "TAILS!";
+                            tailsCount++;
+                            tailsCountEl.textContent = tailsCount;
+                            coinMesh.material[2].emissive.set(0xffffff);
+                            coinMesh.material[2].emissiveIntensity = 0.3;
+                        } else {
+                            // Edge case - very rare
+                            resultText.textContent = "EDGE!";
+                        }
+                        
+                        // Fade out emissive effect
+                        setTimeout(() => {
+                            coinMesh.material[1].emissiveIntensity = 0;
+                            coinMesh.material[2].emissiveIntensity = 0;
+                        }, 1500);
+                    }
+                }, 200);
+            }, 100);
+        }
+        
+        // Reset the simulation
+        function resetSimulation() {
+            flipInProgress = false;
+            resultText.textContent = "Ready to flip";
+            resultText.classList.remove("flipping");
+            
+            // Reset coin position
+            coinBody.position.set(0, 3, 0);
+            coinBody.velocity.set(0, 0, 0);
+            coinBody.angularVelocity.set(0, 0, 0);
+            coinBody.quaternion.set(0, 0, 0, 1);
+            
+            // Reset emissive
+            coinMesh.material[1].emissiveIntensity = 0;
+            coinMesh.material[2].emissiveIntensity = 0;
+        }
+        
+        // Setup event listeners
+        function setupEventListeners() {
+            flipButton.addEventListener('click', flipCoin);
+            resetButton.addEventListener('click', resetSimulation);
+            
+            // Slider event listeners
+            flipForceSlider.addEventListener('input', function() {
+                flipForceValue.textContent = this.value;
+            });
+            
+            spinForceSlider.addEventListener('input', function() {
+                spinForceValue.textContent = this.value;
+            });
+            
+            gravitySlider.addEventListener('input', function() {
+                world.gravity.set(0, -parseInt(this.value), 0);
+                gravityValue.textContent = Math.abs(-parseInt(this.value));
+                console.log(gravityValue.textContent)
+
+            });
+            
+            // Window resize handler
+            window.addEventListener('resize', function() {
+                const canvas = document.getElementById('coinCanvas');
+                camera.aspect = canvas.clientWidth / canvas.clientHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(canvas.clientWidth, canvas.clientHeight);
+            });
+        }
+        
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            // Update physics
+            const deltaTime = clock.getDelta();
+            if (deltaTime > 0.1) return;
+            
+            world.step(1/60, deltaTime, 3);
+
+            // Update coin mesh
+            if (coinMesh && coinBody) {
+                coinMesh.position.copy(coinBody.position);
+                coinMesh.quaternion.copy(coinBody.quaternion);
+            }
+
+            // Enhanced dynamic camera follow
+            const baseOffset = new THREE.Vector3(0, 2, 10);
+            const velocity = new THREE.Vector3(
+                coinBody.velocity.x,
+                coinBody.velocity.y,
+                coinBody.velocity.z
+            );
+            
+            // Calculate speed factor (0-1 normalized, capped at 2x)
+            const maxSpeed = 15; // Adjust based on your physics
+            const speedFactor = Math.min(velocity.length() / maxSpeed, 1);
+            const dynamicScale = 1 + speedFactor; // Scales from 1x to 2x
+            
+            // Calculate dynamic offset
+            const dynamicOffset = baseOffset.clone()
+                .multiplyScalar(dynamicScale)
+                .add(new THREE.Vector3(0, 3 * dynamicScale, 0));
+            
+            // Smooth camera movement
+            const targetPosition = new THREE.Vector3()
+                .copy(coinMesh.position)
+                .add(dynamicOffset);
+            
+            // Speed-adaptive dampening (faster when coin moves quickly)
+            const dampening = 0.1 + (0.15 * speedFactor); // 0.1-0.25 range
+            camera.position.lerp(targetPosition, dampening);
+
+            
+            camera.lookAt(coinMesh.position);
+            renderer.render(scene, camera);
+        }
+        
+        // Initialize the app
+        init();
+    </script>
+</body>
+</html>
