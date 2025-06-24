@@ -354,29 +354,7 @@
             coinBody.angularDamping = 0.1;
 
             world.addBody(coinBody);
-            
-            // Material for heads and tails
-            const headMaterial = new THREE.MeshStandardMaterial({ 
-                color: 0xd4af37,
-                roughness: 0.3,
-                metalness: 0.8,
-                emissive: 0x000000,
-                emissiveIntensity: 0
-            });
-            
-            const tailMaterial = new THREE.MeshStandardMaterial({ 
-                color: 0xc0c0c0,
-                roughness: 0.4,
-                metalness: 0.9,
-                emissive: 0x000000,
-                emissiveIntensity: 0
-            });
-            
-            const edgeMaterial = new THREE.MeshStandardMaterial({ 
-                color: 0x8b7500,
-                roughness: 0.4,
-                metalness: 0.5
-            });
+        
             
             // Visual coin
             const coinGeometry = new THREE.CylinderGeometry(radius, radius, thickness, edgeSegments, 1, false);
@@ -450,24 +428,18 @@
                             resultText.textContent = "HEADS!";
                             headsCount++;
                             headsCountEl.textContent = headsCount;
-                            coinMesh.material[1].emissive.set(0xffff00);
-                            coinMesh.material[1].emissiveIntensity = 0.3;
+                        
                         } else if (dot < -0.7) {
                             resultText.textContent = "TAILS!";
                             tailsCount++;
                             tailsCountEl.textContent = tailsCount;
-                            coinMesh.material[2].emissive.set(0xffffff);
-                            coinMesh.material[2].emissiveIntensity = 0.3;
+                           
                         } else {
                             // Edge case - very rare
                             resultText.textContent = "EDGE!";
                         }
                         
-                        // Fade out emissive effect
-                        setTimeout(() => {
-                            coinMesh.material[1].emissiveIntensity = 0;
-                            coinMesh.material[2].emissiveIntensity = 0;
-                        }, 1500);
+                        
                     }
                 }, 200);
             }, 100);
