@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Realistic 3D Coin Flip</title>
     <style>
+        /* Base styles */
         body {
             margin: 0;
             padding: 0;
@@ -16,85 +17,130 @@
             flex-direction: column;
             height: 100vh;
             text-align: center;
+            min-height: 0;
         }
-        
+
+        /* Header styles */
         .header {
-            padding: 20px;
+            padding: 15px;
             background: rgba(0, 0, 0, 0.3);
             backdrop-filter: blur(10px);
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            flex-shrink: 0;
         }
-        
+
         h1 {
             margin: 0;
             font-size: 2.5rem;
             text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
         }
-        
+
         .subtitle {
             font-size: 1.1rem;
             opacity: 0.8;
             margin-top: 5px;
         }
-        
+
+        /* Main container */
         .container {
             display: flex;
             flex: 1;
-            padding: 20px;
+            padding: 12px;
+            /* padding-bottom: 20px; */
+            min-height: 0;
+            overflow: auto;
+            max-height: calc(100vh - 100px);
+            position: relative;
+            gap: 15px;
+            box-sizing: border-box;
+            min-width: 0; /* Add this to allow proper flex shrinking */
         }
-        
-        #coinCanvas {
+
+
+        /* Canvas section */
+        .canvas-wrapper {
             flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 0;
+            overflow: visible;
+            /* padding: 10px; */
+            min-width: 0; /* Add this to allow proper flex shrinking */
+        }
+
+        .canvas-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
             border-radius: 15px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
             overflow: hidden;
+            background-color: #0c0e2b;
         }
-        
+
+        #coinCanvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+
+        /* Controls section */
         .controls {
             width: 300px;
-            padding: 20px;
+            min-width: 0px;
+            height: 100% - 15px;
+            overflow-y: auto;
+            padding: 15px;
             background: rgba(0, 0, 0, 0.3);
             backdrop-filter: blur(10px);
             border-radius: 15px;
-            margin-left: 20px;
             display: flex;
             flex-direction: column;
             border: 1px solid rgba(255, 255, 255, 0.1);
+            flex-shrink: 0; /* Prevent controls from shrinking */
         }
-        
+
         .control-group {
             margin-bottom: 25px;
         }
-        
+
+        .control-group:last-child {
+            margin-bottom: 15px;
+        }
+
         .control-group h3 {
             margin-top: 0;
             margin-bottom: 15px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.2);
             padding-bottom: 8px;
         }
-        
+
+        /* Slider styles */
         .slider-container {
             margin-bottom: 15px;
         }
-        
+
         label {
             display: block;
             margin-bottom: 5px;
             text-align: left;
             font-size: 0.9rem;
         }
-        
+
         input[type="range"] {
             width: 100%;
             margin-bottom: 5px;
         }
-        
+
         .value-display {
             text-align: right;
             font-size: 0.9rem;
             opacity: 0.8;
         }
-        
+
+        /* Button styles */
         button {
             background: linear-gradient(to right, #ff7e5f, #feb47b);
             color: white;
@@ -108,73 +154,95 @@
             font-weight: bold;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
         }
-        
+
         button:hover {
             transform: translateY(-3px);
             box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
         }
-        
+
         button:active {
             transform: translateY(1px);
         }
-        
+
+        /* Result section */
         .result {
             margin-top: 20px;
-            padding: 15px;
+            margin-bottom: 15px;
+            padding: 20px 15px;
             background: rgba(0, 0, 0, 0.4);
             border-radius: 10px;
-            min-height: 80px;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
         }
-        
+
         .result-text {
             font-size: 1.8rem;
             font-weight: bold;
             text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
-            margin: 10px 0;
+            margin: 15px 0;
         }
-        
+
         .stats {
             display: flex;
             justify-content: space-around;
             width: 100%;
             margin-top: 15px;
+            padding: 10px 0;
             font-size: 0.9rem;
         }
-        
+
         .stat-item {
             text-align: center;
+            padding: 0 10px;
         }
-        
+
         .stat-value {
             font-size: 1.3rem;
             font-weight: bold;
             color: #ff7e5f;
+            margin-top: 5px;
         }
-        
+
+        /* Animation */
         .flipping {
             animation: pulse 1s infinite;
         }
-        
+
         @keyframes pulse {
             0% { opacity: 0.7; }
             50% { opacity: 1; }
             100% { opacity: 0.7; }
         }
-        
-        @media (max-width: 768px) {
+
+        /* Responsive design */
+        @media (max-aspect-ratio: 4/3) {
             .container {
                 flex-direction: column;
+                overflow-y: auto;
+                padding-bottom: 20px;
             }
-            
+
+            .canvas-wrapper {
+                width: 100%;
+                margin-bottom: 15px;
+                flex: 1; /* Change this from min-height */
+                min-height: 0; /* Allow container to flex */
+            }
+
             .controls {
                 width: auto;
-                margin: 20px 0 0 0;
+                margin-left: 0;
+                max-height: 30vh;
+                
+                flex-shrink: 0; /* Prevent controls from shrinking */
             }
         }
+
+
+        
+
     </style>
 </head>
 <body>
@@ -182,9 +250,12 @@
         <h1>Realistic 3D Coin Flip</h1>
         <div class="subtitle">Physics-based simulation using Three.js and Cannon.js</div>
     </div>
-    
     <div class="container">
-        <canvas id="coinCanvas"></canvas>
+        <div class="canvas-wrapper">
+            <div class="canvas-container"> <!-- New wrapper div -->
+                <canvas id="coinCanvas"></canvas>
+            </div>
+        </div>
         
         <div class="controls">
             <div class="control-group">
@@ -192,21 +263,28 @@
                 
                 <div class="slider-container">
                     <label for="flipForce">Flip Force</label>
-                    <input type="range" id="flipForce" min="5" max="30" value="7">
-                    <div class="value-display"><span id="flipForceValue">7</span> N</div>
+                    <input type="range" id="flipForce" min="0.1" max="20" step="0.1" value="2">
+                    <div class="value-display"><span id="flipForceValue">2</span></div>
                 </div>
                 
                 <div class="slider-container">
                     <label for="spinForce">Spin Force</label>
-                    <input type="range" id="spinForce" min="1" max="30" value="15">
-                    <div class="value-display"><span id="spinForceValue">15</span> N</div>
+                    <input type="range" id="spinForce" min="0.1" max="20" step="0.1" value="10">
+                    <div class="value-display"><span id="spinForceValue">10</span></div>
                 </div>
                 
                 <div class="slider-container">
                     <label for="gravity">Gravity</label>
-                    <input type="range" id="gravity" min="1" max="20" value="9">
-                    <div class="value-display"><span id="gravityValue">9</span> m/s²</div>
+                    <input type="range" id="gravity" min="1" max="30" step="0.1" value="20">
+                    <div class="value-display"><span id="gravityValue">20</span></div>
                 </div>
+
+                <div class="slider-container">
+                    <label for="friction">Ground Friction</label>
+                    <input type="range" id="friction" min="0.001"  max="0.05" step="0.001" value="0.01">
+                    <div class="value-display"><span id="frictionValue">0.01</span></div>
+                </div>
+
             </div>
             
             <button id="flipButton">Flip Coin!</button>
@@ -258,7 +336,9 @@
         const flipForceValue = document.getElementById('flipForceValue');
         const spinForceValue = document.getElementById('spinForceValue');
         const gravityValue = document.getElementById('gravityValue');
-        
+        const frictionSlider = document.getElementById('friction');
+        const frictionValue = document.getElementById('frictionValue');
+
         // Initialize the scene
         function init() {
             // Create scene
@@ -273,6 +353,7 @@
             
             // Create renderer
             const canvas = document.getElementById('coinCanvas');
+
             renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
             renderer.setSize(canvas.clientWidth, canvas.clientHeight);
             renderer.shadowMap.enabled = true;
@@ -309,23 +390,28 @@
             animate();
         }
         
+
         // Create the ground
         function createGround() {
             // Physics ground
             const groundShape = new CANNON.Plane();
-            groundBody = new CANNON.Body({ mass: 0 });
+            const groundMaterial = new CANNON.Material('groundMaterial');
+            groundBody = new CANNON.Body({ 
+                mass: 0,
+                material: groundMaterial 
+            });
             groundBody.addShape(groundShape);
             groundBody.quaternion.setFromAxisAngle(new CANNON.Vec3(1, 0, 0), -Math.PI/2);
             world.addBody(groundBody);
-            
+
             // Visual ground
             const groundGeometry = new THREE.PlaneGeometry(2000, 2000);
-            const groundMaterial = new THREE.MeshStandardMaterial({ 
+            const groundVisualMaterial = new THREE.MeshStandardMaterial({ 
                 color: 0x2a4e6c,
                 roughness: 0.8,
                 metalness: 0.2
             });
-            groundMesh = new THREE.Mesh(groundGeometry, groundMaterial);
+            groundMesh = new THREE.Mesh(groundGeometry, groundVisualMaterial);
             groundMesh.rotation.x = -Math.PI / 2;
             groundMesh.receiveShadow = true;
             scene.add(groundMesh);
@@ -339,6 +425,7 @@
         }
         
         // Create the coin
+
         function createCoin() {
             const radius = 1;
             const thickness = 0.15;
@@ -346,16 +433,29 @@
             
             // Physics coin
             const coinShape = new CANNON.Cylinder(radius, radius, thickness, edgeSegments);
-            coinBody = new CANNON.Body({ mass: 2 });
-            // coinBody.quaternion.setFromAxisAngle(new CANNON.Vec3(0, 0, 1), Math.PI / 1);
-            coinBody.addShape(coinShape); 
+            const coinMaterial = new CANNON.Material('coinMaterial');
+            coinBody = new CANNON.Body({ 
+                mass: 1,
+                material: coinMaterial
+            });
+            coinBody.addShape(coinShape);
             coinBody.position.set(0, 3, 0);
-            coinBody.linearDamping = 0.1;
-            coinBody.angularDamping = 0.1;
+            coinBody.linearDamping = 0.04;
+            coinBody.angularDamping = 0.01;
 
-            world.addBody(coinBody);
-        
+            // Create contact material between coin and ground
+            const friction = parseFloat(frictionSlider.value);
+            const coinGroundContact = new CANNON.ContactMaterial(
+                coinMaterial,
+                groundBody.material,
+                {
+                    friction: friction,
+                    restitution: 0.3
+                }
+            );
+            world.addContactMaterial(coinGroundContact);
             
+            world.addBody(coinBody);
             // Visual coin
             const coinGeometry = new THREE.CylinderGeometry(radius, radius, thickness, edgeSegments, 1, false);
             coinGeometry.rotateX(Math.PI/2); // Rotate 90 degrees around X-axis
@@ -461,7 +561,71 @@
             coinMesh.material[1].emissiveIntensity = 0;
             coinMesh.material[2].emissiveIntensity = 0;
         }
+            
+    // function updateCanvasSize() {
+    //     const canvas = document.getElementById('coinCanvas');
+    //     const wrapper = canvas.parentElement.parentElement; // canvas-wrapper
+    //     const container = wrapper.parentElement; // main container
         
+    //     // Check if we're in vertical layout (controls below) or horizontal (controls right)
+    //     const isVerticalLayout = window.innerWidth / window.innerHeight < 16/10;
+        
+    //     let wrapperWidth, wrapperHeight;
+        
+    //     if (isVerticalLayout) {
+    //         // In vertical layout, use full container width
+    //         wrapperWidth = wrapper.clientWidth;
+    //         wrapperHeight = wrapper.clientHeight;
+    //     } else {
+    //         // In horizontal layout, account for controls width
+    //         const controlsWidth = 330; // 300px width + 30px padding/margins
+    //         const availableWidth = container.clientWidth - controlsWidth;
+    //         wrapperWidth = Math.min(availableWidth, wrapper.clientWidth);
+    //         wrapperHeight = wrapper.clientHeight;
+    //     }
+        
+    //     // Update renderer size with device pixel ratio
+    //     const pixelRatio = window.devicePixelRatio || 1;
+    //     renderer.setSize(wrapperWidth * pixelRatio, wrapperHeight * pixelRatio, false);
+    //     canvas.style.width = wrapperWidth + 'px';
+    //     canvas.style.height = wrapperHeight + 'px';        
+    //     canvas.style.width = '22%';
+    //     canvas.style.height = '22%';
+        
+    //     // Update camera aspect ratio
+    //     camera.aspect = wrapperWidth / wrapperHeight;
+    //     camera.updateProjectionMatrix();
+
+    // }
+    function updateCanvasSize() {
+        const canvas = document.getElementById('coinCanvas');
+        const wrapper = canvas.parentElement.parentElement; // canvas-wrapper
+        
+        // Check if we're in vertical layout (controls below) or horizontal (controls right)
+      
+        
+        let wrapperWidth, wrapperHeight;
+        
+
+        wrapperWidth = wrapper.clientWidth;
+        wrapperHeight = wrapper.clientHeight;
+       
+        // Update renderer size with device pixel ratio
+        const pixelRatio = window.devicePixelRatio || 1;
+        renderer.setSize(wrapperWidth * pixelRatio, wrapperHeight * pixelRatio, false);    
+        canvas.style.width = wrapperWidth + 'px';
+        canvas.style.height = wrapperHeight + 'px';    
+        
+        // Update camera aspect ratio
+        camera.aspect = wrapperWidth / wrapperHeight;
+        camera.updateProjectionMatrix();
+
+    }
+
+    
+
+
+
         // Setup event listeners
         function setupEventListeners() {
             flipButton.addEventListener('click', flipCoin);
@@ -480,16 +644,41 @@
                 world.gravity.set(0, -parseInt(this.value), 0);
                 gravityValue.textContent = Math.abs(-parseInt(this.value));
                 console.log(gravityValue.textContent)
+            });
 
+
+            frictionSlider.addEventListener('input', function() {
+                frictionValue.textContent = this.value;
+                
+                // Update the contact material
+                const coinMaterial = coinBody.material;
+                const groundMaterial = groundBody.material;
+                const coinGroundContact = new CANNON.ContactMaterial(
+                    coinMaterial,
+                    groundMaterial,
+                    {
+                        friction: parseFloat(this.value),
+                        restitution: 0.3
+                    }
+                );
+                
+                // Remove existing contact materials
+                world.contactmaterials.length = 0;
+                
+                // Add the new contact material
+                world.addContactMaterial(coinGroundContact);
             });
             
-            // Window resize handler
+            let resizeTimeout;
             window.addEventListener('resize', function() {
-                const canvas = document.getElementById('coinCanvas');
-                camera.aspect = canvas.clientWidth / canvas.clientHeight;
-                camera.updateProjectionMatrix();
-                renderer.setSize(canvas.clientWidth, canvas.clientHeight);
+                clearTimeout(resizeTimeout);
+                resizeTimeout = setTimeout(function() {
+                    updateCanvasSize();
+                }, 250); // 250ms delay
             });
+        
+
+
         }
         
         function animate() {
@@ -538,6 +727,11 @@
             camera.lookAt(coinMesh.position);
             renderer.render(scene, camera);
         }
+
+        // Also call updateCanvasSize when switching between layouts
+        document.addEventListener('DOMContentLoaded', function() {
+            updateCanvasSize();
+        });
         
         // Initialize the app
         init();
