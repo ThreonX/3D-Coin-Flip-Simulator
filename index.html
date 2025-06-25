@@ -263,25 +263,26 @@
                 
                 <div class="slider-container">
                     <label for="flipForce">Flip Force</label>
-                    <input type="range" id="flipForce" min="0.1" max="20" step="0.1" value="2">
-                    <div class="value-display"><span id="flipForceValue">2</span></div>
+                    <input type="range" id="flipForce" min="1" max="30" step="0.1" value="2">
+                    <div class="value-display"><span id="flipForceValue">2</span> </div>
                 </div>
                 
                 <div class="slider-container">
                     <label for="spinForce">Spin Force</label>
-                    <input type="range" id="spinForce" min="0.1" max="20" step="0.1" value="10">
-                    <div class="value-display"><span id="spinForceValue">10</span></div>
+                    <input type="range" id="spinForce" min="1" max="30" step="0.1" value="15">
+                    <div class="value-display"><span id="spinForceValue">15</span> </div>
                 </div>
+
                 
                 <div class="slider-container">
                     <label for="gravity">Gravity</label>
                     <input type="range" id="gravity" min="1" max="30" step="0.1" value="20">
-                    <div class="value-display"><span id="gravityValue">20</span></div>
+                    <div class="value-display"><span id="gravityValue">20</span> </div>
                 </div>
 
                 <div class="slider-container">
                     <label for="friction">Ground Friction</label>
-                    <input type="range" id="friction" min="0.001"  max="0.05" step="0.001" value="0.01">
+                    <input type="range" id="friction" min="0.001" max="0.05" step="0.001" value="0.01">
                     <div class="value-display"><span id="frictionValue">0.01</span></div>
                 </div>
 
@@ -353,14 +354,13 @@
             
             // Create renderer
             const canvas = document.getElementById('coinCanvas');
-
             renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
             renderer.setSize(canvas.clientWidth, canvas.clientHeight);
             renderer.shadowMap.enabled = true;
             
             // Create physics world
             world = new CANNON.World();
-            world.gravity.set(0, -parseInt(gravitySlider.value), 0);
+            world.gravity.set(0, -parseFloat(gravitySlider.value), 0);
             world.broadphase = new CANNON.NaiveBroadphase();
             world.solver.iterations = 10;
             
@@ -440,8 +440,8 @@
             });
             coinBody.addShape(coinShape);
             coinBody.position.set(0, 3, 0);
-            coinBody.linearDamping = 0.04;
-            coinBody.angularDamping = 0.01;
+            coinBody.linearDamping = 0.2;
+            coinBody.angularDamping = 0.1;
 
             // Create contact material between coin and ground
             const friction = parseFloat(frictionSlider.value);
@@ -522,7 +522,6 @@
                         
                         // Dot product to see if heads (top) is facing up
                         const dot = coinNormal.dot(up);
-                        console.log(dot)
                         
                         if (dot > 0.7) {
                             resultText.textContent = "HEADS!";
@@ -562,41 +561,6 @@
             coinMesh.material[2].emissiveIntensity = 0;
         }
             
-    // function updateCanvasSize() {
-    //     const canvas = document.getElementById('coinCanvas');
-    //     const wrapper = canvas.parentElement.parentElement; // canvas-wrapper
-    //     const container = wrapper.parentElement; // main container
-        
-    //     // Check if we're in vertical layout (controls below) or horizontal (controls right)
-    //     const isVerticalLayout = window.innerWidth / window.innerHeight < 16/10;
-        
-    //     let wrapperWidth, wrapperHeight;
-        
-    //     if (isVerticalLayout) {
-    //         // In vertical layout, use full container width
-    //         wrapperWidth = wrapper.clientWidth;
-    //         wrapperHeight = wrapper.clientHeight;
-    //     } else {
-    //         // In horizontal layout, account for controls width
-    //         const controlsWidth = 330; // 300px width + 30px padding/margins
-    //         const availableWidth = container.clientWidth - controlsWidth;
-    //         wrapperWidth = Math.min(availableWidth, wrapper.clientWidth);
-    //         wrapperHeight = wrapper.clientHeight;
-    //     }
-        
-    //     // Update renderer size with device pixel ratio
-    //     const pixelRatio = window.devicePixelRatio || 1;
-    //     renderer.setSize(wrapperWidth * pixelRatio, wrapperHeight * pixelRatio, false);
-    //     canvas.style.width = wrapperWidth + 'px';
-    //     canvas.style.height = wrapperHeight + 'px';        
-    //     canvas.style.width = '22%';
-    //     canvas.style.height = '22%';
-        
-    //     // Update camera aspect ratio
-    //     camera.aspect = wrapperWidth / wrapperHeight;
-    //     camera.updateProjectionMatrix();
-
-    // }
     function updateCanvasSize() {
         const canvas = document.getElementById('coinCanvas');
         const wrapper = canvas.parentElement.parentElement; // canvas-wrapper
@@ -614,7 +578,7 @@
         const pixelRatio = window.devicePixelRatio || 1;
         renderer.setSize(wrapperWidth * pixelRatio, wrapperHeight * pixelRatio, false);    
         canvas.style.width = wrapperWidth + 'px';
-        canvas.style.height = wrapperHeight + 'px';    
+        canvas.style.height = wrapperHeight + 'px';      
         
         // Update camera aspect ratio
         camera.aspect = wrapperWidth / wrapperHeight;
@@ -641,9 +605,8 @@
             });
             
             gravitySlider.addEventListener('input', function() {
-                world.gravity.set(0, -parseInt(this.value), 0);
-                gravityValue.textContent = Math.abs(-parseInt(this.value));
-                console.log(gravityValue.textContent)
+                world.gravity.set(0, -parseFloat(this.value), 0);
+                gravityValue.textContent = Math.abs(-parseFloat(this.value));
             });
 
 
@@ -676,7 +639,11 @@
                     updateCanvasSize();
                 }, 250); // 250ms delay
             });
-        
+            window.addEventListener('resize', () => {
+                const container = document.querySelector('.canvas-container');
+                const canvas = document.querySelector('#coinCanvas');
+                
+            });
 
 
         }
